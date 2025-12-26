@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Main hate detection pipeline orchestrator.
 """
@@ -13,8 +14,11 @@ from tqdm import tqdm
 
 from ..config import settings
 from ..vlm import OpenRouterVLM, VLMOutput
+from ..config import settings
+from ..vlm import OpenRouterVLM, OllamaVLM, VLMOutput
 from ..llm import (
     OpenRouterLLM,
+    OllamaLLM,
     ZeroShotClassifier,
     FewShotClassifier,
     ChainOfThoughtClassifier,
@@ -50,28 +54,39 @@ class HateDetector:
             api_key: API key for both VLM and LLM. Uses config default if None.
             vlm_prompt_mode: Prompt mode for VLM analysis.
         """
+
         # Initialize VLM
-        self.vlm = OpenRouterVLM(
-            model=vlm_model,
-            api_key=api_key,
-            prompt_mode=vlm_prompt_mode
-        )
+        if settings.api_provider == "ollama" or (vlm_model and "llava" in vlm_model):
+            self.vlm = OllamaVLM(
+                model=vlm_model or "llava:7b",
+                base_url=settings.ollama_base_url,
+                prompt_mode=vlm_prompt_mode
+            )
+        else:
+            self.vlm = OpenRouterVLM(
+                model=vlm_model,
+                api_key=api_key,
+                prompt_mode=vlm_prompt_mode
+            )
         
         # Initialize LLM
-        self.llm = OpenRouterLLM(
-            model=llm_model,
-            api_key=api_key
-        )
+        # Initialize LLM
+        if settings.api_provider == "ollama" or (llm_model and "llama" in llm_model and "free" not in llm_model):
+            self.llm = OllamaLLM(
+                model=llm_model or "llama3.2:3b",
+                base_url=settings.ollama_base_url
+            )
+        else:
+            self.llm = OpenRouterLLM(
+                model=llm_model,
+                api_key=api_key
+            )
         
         # Initialize classifiers
         self.classifiers = {
             "zero_shot": ZeroShotClassifier(self.llm),
             "few_shot": FewShotClassifier(self.llm),
-            "cot": ChainOfThoughtClassifier(OpenRouterLLM(
-                model=llm_model,
-                api_key=api_key,
-                temperature=0.2
-            ))
+            "cot": ChainOfThoughtClassifier(self.llm)
         }
     
     def _get_classifier(self, mode: str):
@@ -89,8 +104,8 @@ class HateDetector:
         Detect hate speech in a meme image.
         
         Follows the strict pipeline:
-        1. VLM: Image → Visual description + OCR + Cultural context
-        2. LLM: Text analysis → HATE/NON-HATE classification
+        1. VLM: Image -> Visual description + OCR + Cultural context
+        2. LLM: Text analysis -> HATE/NON-HATE classification
         
         Args:
             image_path: Path to the meme image.
@@ -127,7 +142,7 @@ class HateDetector:
                 target_group=None
             )
             classification = ClassificationResult(
-                label="NON-HATE",
+                label="ERROR",  # Don't default to NON-HATE - it pollutes metrics
                 justification=f"Error during analysis: {error}"
             )
         
@@ -260,16 +275,16 @@ async def main():
     
     detector = HateDetector()
     
-    console.print(f"\n[bold cyan]🔍 Analyzing meme: {image_path}[/]")
+    console.print(f"\n[bold cyan]Analyzing meme: {image_path}[/]")
     console.print(f"[dim]Mode: {mode}[/]\n")
     
     result = await detector.detect(image_path, mode)
     
     if result.error:
-        console.print(f"[bold red]❌ Error: {result.error}[/]")
+        console.print(f"[bold red]Error: {result.error}[/]")
     else:
         # Display VLM output
-        console.print("[bold yellow]📸 VLM Analysis:[/]")
+        console.print("[bold yellow]VLM Analysis:[/]")
         console.print(f"  Visual: {result.vlm_output.visual_description[:200]}...")
         console.print(f"  OCR: {result.vlm_output.ocr_text}")
         console.print(f"  Meaning: {result.vlm_output.implicit_meaning[:200]}...")
@@ -279,7 +294,7 @@ async def main():
         
         # Display classification
         label_color = "red" if result.classification.label == "HATE" else "green"
-        console.print(f"[bold {label_color}]🏷️  Label: {result.classification.label}[/]")
+        console.print(f"[bold {label_color}]Label: {result.classification.label}[/]")
         console.print(f"[dim]Justification: {result.classification.justification}[/]")
         console.print(f"[dim]Processing time: {result.processing_time:.2f}s[/]")
 

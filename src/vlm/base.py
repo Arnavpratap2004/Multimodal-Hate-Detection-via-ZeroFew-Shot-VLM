@@ -35,6 +35,11 @@ class VLMOutput(BaseModel):
         description="The target group being referenced or attacked (if any)"
     )
     
+    hate_risk_level: Optional[str] = Field(
+        default=None,
+        description="VLM's preliminary assessment: HIGH, MEDIUM, or LOW risk of hate content"
+    )
+    
     def to_context_string(self) -> str:
         """
         Convert VLM output to a formatted string for LLM input.
@@ -52,6 +57,9 @@ class VLMOutput(BaseModel):
             parts.append(f"\n**Identified Target Group:**\n{self.target_group}")
         else:
             parts.append("\n**Identified Target Group:**\nNone identified")
+        
+        if self.hate_risk_level:
+            parts.append(f"\n**VLM Hate Risk Assessment:**\n{self.hate_risk_level}")
         
         return "\n".join(parts)
 

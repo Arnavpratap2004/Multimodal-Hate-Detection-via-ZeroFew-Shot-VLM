@@ -16,9 +16,9 @@ class ClassificationResult(BaseModel):
     This represents the final output of the pipeline.
     """
     
-    label: Literal["HATE", "NON-HATE"] = Field(
+    label: Literal["HATE", "NON-HATE", "ERROR"] = Field(
         ...,
-        description="Binary classification label"
+        description="Binary classification label (ERROR for failed analyses)"
     )
     
     justification: str = Field(
@@ -33,6 +33,11 @@ class ClassificationResult(BaseModel):
         description="Optional confidence score (0-1)"
     )
     
+    confidence_level: Optional[Literal["LOW", "MEDIUM", "HIGH"]] = Field(
+        default=None,
+        description="Confidence level from LLM (LOW/MEDIUM/HIGH)"
+    )
+    
     def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
         result = {
@@ -41,6 +46,8 @@ class ClassificationResult(BaseModel):
         }
         if self.confidence is not None:
             result["confidence"] = self.confidence
+        if self.confidence_level is not None:
+            result["confidence_level"] = self.confidence_level
         return result
 
 

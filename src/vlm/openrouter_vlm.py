@@ -204,7 +204,7 @@ class OpenRouterVLM(BaseVLM):
                     "model": self.model,
                     "messages": messages,
                     "temperature": 0.1,  # Low temperature for consistent analysis
-                    "max_tokens": 2000
+                    "max_tokens": 1500
                 }
             )
             
@@ -230,7 +230,8 @@ class OpenRouterVLM(BaseVLM):
             visual_description=parsed.get("visual_description", ""),
             ocr_text=parsed.get("ocr_text", ""),
             implicit_meaning=parsed.get("implicit_meaning", ""),
-            target_group=parsed.get("target_group")
+            target_group=parsed.get("target_group"),
+            hate_risk_level=parsed.get("hate_risk_level")
         )
     
     async def health_check(self) -> bool:

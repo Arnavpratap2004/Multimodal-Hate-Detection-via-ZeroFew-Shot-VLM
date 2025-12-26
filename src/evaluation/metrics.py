@@ -87,7 +87,9 @@ class MetricsCalculator:
         self.results: List[Tuple[str, str]] = []  # (prediction, ground_truth)
     
     def add_result(self, prediction: str, ground_truth: str) -> None:
-        """Add a single result."""
+        """Add a single result. Skips ERROR predictions."""
+        if prediction == "ERROR":
+            return  # Skip failed API calls
         self.results.append((prediction, ground_truth))
     
     def add_results_from_analysis(

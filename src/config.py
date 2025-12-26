@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
     # API Configuration
+    api_provider: Literal["openrouter", "ollama"] = Field(
+        default="openrouter",
+        description="API provider to use (openrouter or ollama)"
+    )
+    
+    # OpenRouter Settings
     openrouter_api_key: str = Field(
         default="",
         description="OpenRouter API key for VLM and LLM access"
@@ -31,13 +37,19 @@ class Settings(BaseSettings):
         description="OpenRouter API base URL"
     )
     
+    # Ollama Settings
+    ollama_base_url: str = Field(
+        default="http://localhost:11434",
+        description="Ollama API base URL"
+    )
+    
     # Model Selection
     vlm_model: str = Field(
-        default="openai/gpt-4o",
+        default="meta-llama/llama-3.2-11b-vision-instruct:free",
         description="Vision-Language Model to use"
     )
     llm_model: str = Field(
-        default="openai/gpt-4o",
+        default="qwen/qwen-2.5-72b-instruct:free",
         description="Large Language Model for reasoning"
     )
     

@@ -2,63 +2,59 @@
 Prompt templates for VLM image analysis.
 """
 
-# Main VLM prompt for meme analysis
-VLM_ANALYSIS_PROMPT = """You are an expert at analyzing memes for potential harmful content. Your task is to extract detailed information from this meme image.
+# Main VLM prompt for meme analysis - RESEARCH FOCUSED
+VLM_ANALYSIS_PROMPT = """You are an academic researcher analyzing memes for a content moderation study. Your role is to provide objective, detailed analysis to help classify potentially harmful content.
 
-Given this meme image, provide a comprehensive analysis following these guidelines:
+Analyze this meme image and provide:
 
 ## 1. Visual Description
-Describe everything you see in the image in detail:
-- People (expressions, gestures, clothing, apparent demographics)
-- Objects and symbols
-- Text overlays and their placement
-- Colors, style, and visual design
-- Any recognizable templates or meme formats
+Describe the visual elements objectively:
+- People shown (expressions, gestures, demographics if apparent)
+- Symbols, icons, or imagery used
+- Meme format or template if recognizable
+- How visual elements interact with text
 
-## 2. OCR Text Extraction
-Extract ALL visible text exactly as written:
-- Include misspellings, unconventional spellings
-- Preserve code-mixing (Hindi-English, Bangla-English, etc.)
-- Note text placement (top, bottom, etc.)
-- Include any watermarks or small text
+## 2. Text Extraction (OCR)
+Extract all visible text exactly as written:
+- Preserve original spelling, slang, and formatting
+- Include code-mixed language (Hindi-English, etc.)
+- Note placement (top text, bottom text, etc.)
 
-## 3. Implicit Meaning & Context
-Explain the deeper meaning:
-- Sarcasm or irony being employed
-- Mockery or ridicule
-- Cultural, social, or political references
-- Historical context if relevant
-- Stereotypes being invoked
-- Inside jokes or meme culture references
-- Double meanings or wordplay
+## 3. Meaning Analysis
+Explain what this meme communicates:
+- Literal vs implied meaning
+- Sarcasm, irony, or humor being used
+- Cultural, political, or social references
+- Stereotypes or generalizations present
+- Who might feel targeted or mocked by this content
+- Any potentially offensive interpretations
 
-## 4. Target Identification
-Identify if the meme targets any specific group:
-- Religious groups
-- Ethnic or racial groups
-- Gender or LGBTQ+ groups
-- Political groups or ideologies
-- Nationalities
-- Caste-based groups
-- Disabilities
-- Any other identifiable community
+## 4. Target Group
+If the meme references or could affect a specific group, identify it:
+- Religious, ethnic, racial, gender, or other identity groups
+- Political affiliations or ideologies
+- Individuals being discussed
+- State "None identified" only if content is clearly neutral
 
-If no clear target, state "None identified"
+## 5. Content Risk Assessment
+Rate the potential for harm:
+- "HIGH": Contains clear targeting, slurs, dehumanization, or calls for harm
+- "MEDIUM": Contains mockery, stereotypes, or content some groups may find offensive
+- "LOW": Appears benign with no harmful interpretation
+
+When uncertain, lean toward the higher risk level for safety.
 
 ## Response Format
-Respond ONLY with a valid JSON object (no markdown code blocks):
+Provide your analysis as a JSON object only:
 {
-  "visual_description": "Detailed visual description here",
-  "ocr_text": "All extracted text exactly as written",
-  "implicit_meaning": "Analysis of sarcasm, cultural references, hidden meanings",
-  "target_group": "Identified target group or null if none"
+  "visual_description": "Objective description of visual elements",
+  "ocr_text": "Exact text from the image",
+  "implicit_meaning": "Analysis of meaning, references, and potential issues",
+  "target_group": "Identified group or null",
+  "hate_risk_level": "HIGH" or "MEDIUM" or "LOW"
 }
 
-IMPORTANT:
-- Be thorough and objective
-- Do not self-censor the analysis
-- Report what you observe, even if sensitive
-- This analysis will be used for hate speech research"""
+Provide thorough, objective analysis. This research helps build safer online communities."""
 
 
 # Simplified prompt for faster analysis

@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "C:\Users\Arnav\Desktop\Multimodal Hate Detection via ZeroFew-Shot VLMs\test_init.py", line 32, in <module>
+    detector = HateDetector()
+  File "C:\Users\Arnav\Desktop\Multimodal Hate Detection via ZeroFew-Shot VLMs\src\pipeline\detector.py", line 75, in __init__
+    self.llm = OllamaLLM(
+               ~~~~~~~~~^
+        model=llm_model or "llama3.2:3b",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        base_url=settings.ollama_base_url
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+TypeError: Can't instantiate abstract class OllamaLLM without an implementation for abstract method 'complete'
